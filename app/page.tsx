@@ -1,7 +1,7 @@
 // pages/index.tsx
 
 import React from 'react';
-import FileUpload from './components/FileUpload'; // Adjust the path if necessary
+import FileUpload from './FileUpload'; // Adjust the path if necessary
 
 const HomePage: React.FC = () => {
   return (
