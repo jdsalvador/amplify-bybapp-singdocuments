@@ -100,7 +100,7 @@ const FileUpload: React.FC = () => {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: '.pdf',
+    accept: { 'application/pdf': ['.pdf'] },
   });
 
   const handleUpload = async () => {
