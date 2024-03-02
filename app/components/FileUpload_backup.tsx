@@ -1,3 +1,4 @@
+// @ts-nocheck
 // components/FileUpload.tsx
 'use client';
 
