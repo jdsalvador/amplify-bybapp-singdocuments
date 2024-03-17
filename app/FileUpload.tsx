@@ -20,7 +20,8 @@ import { green, red, grey } from '@mui/material/colors';
 
 const API_PROCESS='https://dhns872rqh.execute-api.us-east-1.amazonaws.com/test_1/files';
 //const LAMBDA_API_ENDPOINT = 'https://31leudvms4.execute-api.us-east-1.amazonaws.com/default/byb_handle_pdf_get_presigned_url'
-const LAMBDA_API_ENDPOINT = 'https://gyiee3jhww3xf3blxflmdhe7oq0ciayb.lambda-url.us-east-1.on.aws/'
+const LAMBDA_API_ENDPOINT = 'https://09esn17m70.execute-api.us-east-1.amazonaws.com/inicio1/getpresigned'
+const LAMBDA_API_PDF2PNG = 'https://0artc3ub2h.execute-api.us-east-1.amazonaws.com/stage1_pdf2png/pdf2png'
 const vibrantPrimary = '#ff4081'; // Example vibrant color
 const vibrantSecondary = '#80bced'; // Example secondary color
 
@@ -109,33 +110,70 @@ const FileUpload: React.FC = () => {
     setError('');
 
     try {
+      let archivos_subidos = [];
+      const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').substring(0, 14); // Genera yyyymmddHHMMSS
+      console.log("Timestamp para subcarpeta:", timestamp); 
       const uploadResults = await Promise.all(selectedFiles.map(async (file) => {
         try {
           console.log("enviando archivo")
           console.log(file.name)
           // Obtener la URL prefirmada de Lambda
           const presignedResponse = await axios.post(LAMBDA_API_ENDPOINT, {
-            fileName: file.name,
+            folderName: timestamp,
+            fileName: file.name,//`${timestamp}/${file.name}`,//file.name,
             fileType: file.type,
           },{
-            headers: {
-              'Content-Type': 'application/json',
-              "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
-              "Access-Control-Allow-Credentials" : true // Req
-            },
+            // headers: {
+            //   'Content-Type': 'application/json',
+            //   "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+            //   "Access-Control-Allow-Credentials" : true // Req
+            // },
           });
           
-          const { url, fields } = presignedResponse.data;
-
+          //const { url, fields } = presignedResponse.data.body;
+          const url = presignedResponse.data.body.url;
+          console.log("la url es ")
+          console.log(url)
           // Crear el formulario con los campos requeridos para S3 y el archivo
           const formData = new FormData();
-          Object.entries(fields).forEach((key: any, value: any) => {
-            formData.append(key, value);
-          });
+        //   Object.entries(fields).forEach((key: any, value: any) => {
+        //     formData.append(key, value);
+        //   });
           formData.append('file', file);
 
           // Subir el archivo a S3 usando la URL prefirmada
-          await axios.post(url, formData);
+          //await axios.put(url, formData);
+          try {
+            const response = await axios.put(url, file, {
+              headers: {
+                'Content-Type': file.type, // Asegúrate de que este tipo de contenido coincida con el especificado al generar la URL presignada
+              },
+            });
+            
+            if (response.status === 200 || response.status === 204) {
+              console.log('Archivo subido con éxito');
+             
+              archivos_subidos.push(file.name)
+
+              const response_pdf2png = await axios.post(LAMBDA_API_PDF2PNG, 
+                {
+                  bucket_name:'bybappclasificadocsv1/'+timestamp,
+                  pdf_key: file.name
+              }, {
+              // headers: {
+            //   'Content-Type': 'application/json',
+            //   "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+            //   "Access-Control-Allow-Credentials" : true // Req
+            // },
+              });
+
+
+
+              // Aquí puedes realizar acciones adicionales, sabiendo que la subida fue exitosa
+            }
+          } catch (error) {
+            console.error('Error al subir el archivo con put en S3:', error);
+          }
 
           return { success: true, fileName: file.name };
         } catch (uploadError) {
@@ -146,7 +184,7 @@ const FileUpload: React.FC = () => {
       }));
 
       setUploadResponse({
-        filesUploaded: uploadResults.filter(result => result.success).map(result => result.fileName),
+        filesUploaded: archivos_subidos//uploadResults.filter(result => result.success).map(result => result.fileName),
       });
     } catch (error) {
       console.error('Error during the upload process:', error);
@@ -269,14 +307,14 @@ const FileUpload: React.FC = () => {
             Download Zip
           </Button>
           <List>
-          {uploadResponse.upload_files.map((file, index) => (
+          {uploadResponse.filesUploaded.map((file, index) => (
               <ListItem key={index}>
                 <CheckCircleIcon style={{ color: green[500] }} />
                 <ListItemText primary={file} />
               </ListItem>
             ))}
             
-            {uploadResponse.filesPassed.map((file, index) => (
+            {/* {uploadResponse.filesPassed.map((file, index) => (
               <ListItem key={index}>
                 <CheckCircleIcon style={{ color: green[500] }} />
                 <ListItemText primary={file} />
@@ -287,7 +325,7 @@ const FileUpload: React.FC = () => {
                 <ErrorIcon style={{ color: red[500] }} />
                 <ListItemText primary={file} />
               </ListItem>
-            ))}
+            ))} */}
           </List>
 
         </>
