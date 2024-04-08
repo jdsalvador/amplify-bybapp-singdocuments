@@ -521,7 +521,7 @@ const FileUpload: React.FC = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
-        Firma documentos
+        ByB / Firma documentos
       </Typography>
 
       {/* Conditionally render the upload form or the response */}
@@ -554,7 +554,7 @@ const FileUpload: React.FC = () => {
 
           <Dropzone {...getRootProps()}>
             <input {...getInputProps()} />
-            <p>Arrastra los archivos acá o presiona para buscarlos</p>
+            <p>Arrastra los archivos aquí o presiona para buscarlos</p>
           </Dropzone>
 
 
