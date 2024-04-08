@@ -37,7 +37,7 @@ const Container = styled('div')({
   justifyContent: 'center',
   padding: '2rem',
   color: '#333', // Use a darker color for text for better readability
-  backgroundColor: '#E7F2F8'//'rgba(255,148,112,0.4)',
+  backgroundColor: 'rgba(240, 240, 240,0.4)'//'rgba(255,148,112,0.4)',
 });
 
 const Dropzone = styled('div')({
@@ -96,7 +96,7 @@ const InputContainer = styled('div')({
   alignItems: 'center',
   flexDirection: 'column',
   marginBottom: '20px',
-  backgroundColor: '#FFA384',//'rgba(255,148,112,1)',
+  backgroundColor: '#E78895',//'rgba(255,148,112,1)',
   borderWidth: '2px',
   borderRadius: '20px',
 });
